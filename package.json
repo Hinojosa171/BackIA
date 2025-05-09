@@ -1,0 +1,23 @@
+{
+  "name": "chat-gpt-app-backend",
+  "version": "1.0.0",
+  "description": "Backend para la aplicación ChatGPT",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.7",
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^4.21.2",
+    "mongoose": "^8.1.0",
+    "openai": "^4.98.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}
