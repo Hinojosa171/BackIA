@@ -27,18 +27,25 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(bodyParser.json());
 
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/chat-gpt-app';
 
-mongoose.connect(MONGODB_URI)
-  .then(() => console.log('✅ MongoDB conectado'))
-  .catch(err => {
-    console.error('❌ Error de conexión a MongoDB:', err);
-    process.exit(1); // Detener el servidor si falla la conexión
-  });
+mongoose.connect(MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 5000
+}).then(() => {
+  console.log('✅ MongoDB conectado');
+}).catch(err => {
+  console.error('❌ Error de conexión a MongoDB:', err);
+});
 
 // OpenAI Configuration
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -91,6 +98,12 @@ app.get('/', (req, res) => {
     message: 'API de ChatGPT funcionando correctamente',
     status: 'OpenAI configurado con clave fija en el controlador'
   });
+});
+
+// Agregar manejo de errores
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Algo salió mal!' });
 });
 
 // Iniciar el servidor
