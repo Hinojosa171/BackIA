@@ -29,10 +29,14 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(cors({
   origin: '*',
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
+  credentials: true
 }));
 app.use(bodyParser.json());
+
+// Agregar middleware para manejar preflight
+app.options('*', cors());
 
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/chat-gpt-app';
@@ -100,13 +104,21 @@ app.get('/', (req, res) => {
   });
 });
 
-// Agregar manejo de errores
+// Agregar manejo de errores mejorado
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Algo salió mal!' });
+  console.error('Error:', err.stack);
+  res.status(500).json({
+    error: 'Error interno del servidor',
+    message: process.env.NODE_ENV === 'development' ? err.message : 'Algo salió mal'
+  });
 });
 
-// Iniciar el servidor
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor corriendo en el puerto ${PORT}`);
-});
+// Modificar la forma en que se exporta la app
+export default app;
+
+// Solo iniciar el servidor si no estamos en Vercel
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`🚀 Servidor corriendo en el puerto ${PORT}`);
+  });
+}
